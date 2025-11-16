@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FormWithValidation, EmailInput, PhoneNumberInput } from './components/ValidatedForm'
+import { FormWithValidation, EmailInput, PhoneNumberInput, ClearButton } from './components/ValidatedForm'
 
 export default function App() {
   const [email, setEmail] = useState('');
@@ -15,6 +15,7 @@ export default function App() {
         </div>
         <PhoneNumberInput name="phone" />
         <button>test</button>
+        <ClearButton>Clear</ClearButton>
       </FormWithValidation>
     </>
   )

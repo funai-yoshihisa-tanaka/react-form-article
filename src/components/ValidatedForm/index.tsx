@@ -1,2 +1,3 @@
 export * from './Input';
-export { default as FormWithValidation } from './Form'
+export { FormWithValidation } from './Form'
+export { ClearButton } from './ClearButton'

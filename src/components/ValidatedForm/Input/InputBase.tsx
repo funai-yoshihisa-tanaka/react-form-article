@@ -62,7 +62,7 @@ function syncValidation(
 }
 
 export function InputBase({ schema, controlledState, required, defaultValue, syncWith, minLength = 0, maxLength = DEFAULT_MAX_LENGTH, beforeValidate = (v) => v, ...props }: Props) {
-  const setDidPassData = useFormDispatch();
+  const { setDidPassData, setClearFunctions, removeClearFunctions, cancelPendingSubmit } = useFormDispatch();
   const formState = useFormState();
   const myId = useId();
   const setDidPass = useCallback((didPass: boolean) => {
@@ -81,9 +81,6 @@ export function InputBase({ schema, controlledState, required, defaultValue, syn
       valueRef.current = result;
       return result;
     })
-    const result = typeof action === 'function'? action(value) : action;
-    valueRef.current = result;
-    _setValue(result);
   }, [_setValue]);
   const [internalErrorMessage, setInternalErrorMessage] = useState<string[]>([]);
 
@@ -120,6 +117,11 @@ export function InputBase({ schema, controlledState, required, defaultValue, syn
 
   useEffect(() => {
     setDidPass(!required);
+    setClearFunctions(myId, () => {
+      setValue('');
+      setInternalErrorMessage([]);
+      setDidPass(!required)
+    });
 
     // アンマウント時に実行されるクリーンアップ関数
     return () => {
@@ -128,8 +130,9 @@ export function InputBase({ schema, controlledState, required, defaultValue, syn
         delete newState[myId];
         return newState;
       });
+      removeClearFunctions(myId)
     };
-  }, [setDidPassData, myId, required, setDidPass]);
+  }, [setDidPassData, setClearFunctions, removeClearFunctions, myId, required, setValue, setDidPass, setInternalErrorMessage]);
 
   useEffect(() => {
     if (valueRef.current !== '') {
@@ -146,7 +149,8 @@ export function InputBase({ schema, controlledState, required, defaultValue, syn
   return (
     <div>
       <input
-        {...props}
+        {...props}      
+        onFocus={() => {cancelPendingSubmit()}}
         value={value}
         onChange={(e) => {setValue(e.target.value)}}
         onBlur={validate}
